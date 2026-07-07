@@ -8,12 +8,19 @@ import argparse
 import urllib.request
 from urllib.error import URLError, HTTPError
 
-# Try to import dotenv to load local env variables if available
-try:
-    from dotenv import load_dotenv
-    load_dotenv()
-except ImportError:
-    pass
+# Resolve and load .env.backup from the project root
+dotenv_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../.env.backup"))
+if os.path.exists(dotenv_path):
+    try:
+        from dotenv import load_dotenv
+        load_dotenv(dotenv_path)
+    except ImportError:
+        # Fallback manual parsing if python-dotenv is not installed
+        with open(dotenv_path, "r") as f:
+            for line in f:
+                if line.strip() and not line.strip().startswith('#'):
+                    key, val = line.strip().split('=', 1)
+                    os.environ[key.strip()] = val.strip()
 
 # Load credentials from environment
 B2_KEY_ID = os.getenv("B2_KEY_ID")

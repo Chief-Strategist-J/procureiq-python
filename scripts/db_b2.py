@@ -97,7 +97,7 @@ def do_backup():
         sys.exit(1)
         
     # Run pg_dump via docker exec
-    dump_cmd = f"docker exec -t {CONTAINER_NAME} pg_dump -U {DB_USER} -d {DB_NAME}"
+    dump_cmd = f"docker exec -i {CONTAINER_NAME} pg_dump -U {DB_USER} -d {DB_NAME}"
     try:
         with open(sql_filepath, "wb") as f_out:
             subprocess.check_call(dump_cmd, shell=True, stdout=f_out)

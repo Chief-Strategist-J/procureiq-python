@@ -1,0 +1,14 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Database dumps and local backups
+deploy/alloydb/local/backups/
+*.sql
+*.sql.gz
+
+# Environments
+.env
+.env.backup
+.env.*

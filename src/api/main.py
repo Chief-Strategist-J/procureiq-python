@@ -2,9 +2,13 @@ from fastapi import FastAPI, Depends
 import os
 from sqlalchemy.orm import Session
 from sqlalchemy import text
-from src.infra.database import get_db
+from src.infra.database import get_db, engine
+from src.infra.tracing.otel import setup_tracing
 
 app = FastAPI(title="ProcureIQ Python Service")
+
+# Setup OpenTelemetry Tracing
+setup_tracing(app=app, engine=engine)
 
 @app.get("/")
 def read_root():

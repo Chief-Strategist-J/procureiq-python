@@ -4,11 +4,14 @@ from sqlalchemy.orm import Session
 from sqlalchemy import text
 from src.infra.database import get_db, engine
 from src.infra.tracing.otel import setup_tracing
+from src.api.rest.v1.handlers.fieldservice import router as fieldservice_router
 
 app = FastAPI(title="ProcureIQ Python Service")
 
 # Setup OpenTelemetry Tracing
 setup_tracing(app=app, engine=engine)
+
+app.include_router(fieldservice_router)
 
 @app.get("/")
 def read_root():
@@ -30,4 +33,5 @@ def check_db(db: Session = Depends(get_db)):
             "status": "disconnected",
             "error": str(e)
         }
+
 

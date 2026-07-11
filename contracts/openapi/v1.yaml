@@ -1,0 +1,153 @@
+openapi: 3.0.3
+info:
+  title: ProcureIQ Email API
+  description: API for sending and scheduling emails with Gmail SMTP
+  version: 1.0.0
+paths:
+  /api/v1/email/send:
+    post:
+      summary: Send an email immediately to multiple recipients
+      operationId: send_email
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmailSendRequest'
+      responses:
+        '200':
+          description: Email sent successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmailResponse'
+        '400':
+          description: Invalid input or SMTP error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/email/schedule:
+    post:
+      summary: Schedule an email to be sent at a future time to multiple recipients
+      operationId: schedule_email
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmailScheduleRequest'
+      responses:
+        '200':
+          description: Email scheduled successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmailScheduleResponse'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/email/scheduled:
+    get:
+      summary: List all scheduled emails
+      operationId: list_scheduled_emails
+      responses:
+        '200':
+          description: List of scheduled emails retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EmailScheduleResponse'
+
+components:
+  schemas:
+    EmailSendRequest:
+      type: object
+      required:
+        - recipients
+        - subject
+        - body
+      properties:
+        recipients:
+          type: array
+          items:
+            type: string
+            format: email
+          description: List of recipient email addresses
+        subject:
+          type: string
+          description: Subject line of the email
+        body:
+          type: string
+          description: Body content of the email (supports text/plain)
+
+    EmailScheduleRequest:
+      type: object
+      required:
+        - recipients
+        - subject
+        - body
+        - scheduled_for
+      properties:
+        recipients:
+          type: array
+          items:
+            type: string
+            format: email
+          description: List of recipient email addresses
+        subject:
+          type: string
+          description: Subject line of the email
+        body:
+          type: string
+          description: Body content of the email
+        scheduled_for:
+          type: string
+          format: date-time
+          description: ISO-8601 timestamp for when to send the email
+
+    EmailResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: success
+        message:
+          type: string
+          example: Email sent successfully
+
+    EmailScheduleResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        recipients:
+          type: array
+          items:
+            type: string
+        subject:
+          type: string
+        body:
+          type: string
+        scheduled_for:
+          type: string
+        status:
+          type: string
+          example: pending
+        created_at:
+          type: string
+
+    ErrorResponse:
+      type: object
+      properties:
+        detail:
+          type: string
+          example: SMTP authentication failed

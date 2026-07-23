@@ -281,3 +281,16 @@ class TestAllSpringbootControllers:
         assert req("POST", "/api/v1/identity/organizations/1/assignments", {"userId": 1, "roleId": 1})[0] in [200, 201, 400, 500]
         assert req("GET", "/api/v1/identity/organizations/1/audit-events")[0] in [200, 500]
         assert req("POST", "/api/v1/identity/organizations/1/audit-events/verify", {"hash": "abc"})[0] in [200, 400, 500]
+
+    # --- 10. Crypto & Binance Time Series Analytics APIs ---
+    def test_crypto_time_series_apis(self):
+        kl_status, kl_res = req("GET", "/api/v1/crypto/klines?symbol=BTCUSDT&interval=1h&limit=10")
+        assert kl_status == 200
+        assert kl_res["data"]["symbol"] == "BTCUSDT"
+        assert len(kl_res["data"]["klines"]) > 0
+
+        an_status, an_res = req("GET", "/api/v1/crypto/analyze?symbol=BTCUSDT&interval=1h&limit=10&forecastHorizon=5")
+        assert an_status == 200
+        assert an_res["data"]["symbol"] == "BTCUSDT"
+        assert "trendDirection" in an_res["data"]
+        assert len(an_res["data"]["forecastPrices"]) == 5

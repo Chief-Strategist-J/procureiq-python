@@ -8,6 +8,7 @@ from src.infra.database import get_db, engine, Base, SessionLocal
 from src.infra.tracing.otel import setup_tracing
 from src.api.rest.v1.handlers.fieldservice import router as fieldservice_router
 from src.api.rest.v1.handlers.email import router as email_router
+from src.api.rest.v1.handlers.analytics import router as analytics_router
 
 # Ensure models are imported for metadata creation
 from src.features.email.models import ScheduledEmail
@@ -23,6 +24,7 @@ setup_tracing(app=app, engine=engine)
 
 app.include_router(fieldservice_router)
 app.include_router(email_router)
+app.include_router(analytics_router)
 
 def run_email_scheduler():
     """Background worker daemon processing scheduled emails every 10 seconds."""

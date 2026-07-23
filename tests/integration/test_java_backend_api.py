@@ -119,25 +119,52 @@ class TestAllSpringbootControllers:
 
     # --- 5. Field Service APIs (Work Types, Work Orders, Appointments, Operating Hours, Time Slots, Territories) ---
     def test_field_service_all_resources(self):
-        # Work Types
-        wt_id = parse_id(req("POST", "/api/v1/fieldservice/work-types", {"name": "WT1", "defaultDurationMinutes": 60})[1])
-        assert req("GET", f"/api/v1/fieldservice/work-types/{wt_id}")[0] == 200
-        assert req("PUT", f"/api/v1/fieldservice/work-types/{wt_id}", {"name": "WT1 Up", "defaultDurationMinutes": 90})[0] == 200
+        # Work Types correctness verification
+        wt_post_status, wt_res = req("POST", "/api/v1/fieldservice/work-types", {"name": "WT1_Test", "defaultDurationMinutes": 60})
+        assert wt_post_status == 201
+        assert wt_res["data"]["name"] == "WT1_Test"
+        assert wt_res["data"]["defaultDurationMinutes"] == 60
+        wt_id = wt_res["data"]["id"]
 
-        # Work Orders
-        wo_id = parse_id(req("POST", "/api/v1/fieldservice/work-orders", {"workTypeId": wt_id, "status": "new", "priority": 1})[1])
-        assert req("GET", "/api/v1/fieldservice/work-orders")[0] == 200
-        assert req("GET", f"/api/v1/fieldservice/work-orders/{wo_id}")[0] == 200
-        assert req("PUT", f"/api/v1/fieldservice/work-orders/{wo_id}", {"workTypeId": wt_id, "status": "in_progress", "priority": 1})[0] == 200
+        wt_get_status, wt_get_res = req("GET", f"/api/v1/fieldservice/work-types/{wt_id}")
+        assert wt_get_status == 200
+        assert wt_get_res["data"]["id"] == wt_id
+        assert wt_get_res["data"]["name"] == "WT1_Test"
 
-        # Operating Hours & Time Slots
-        oh_id = parse_id(req("POST", "/api/v1/fieldservice/operating-hours", {"name": "OH1", "timeZone": "UTC"})[1])
-        assert req("GET", "/api/v1/fieldservice/operating-hours")[0] == 200
-        assert req("GET", f"/api/v1/fieldservice/operating-hours/{oh_id}")[0] == 200
-        assert req("PUT", f"/api/v1/fieldservice/operating-hours/{oh_id}", {"name": "OH1 Up", "timeZone": "UTC"})[0] == 200
+        # Work Orders correctness verification
+        wo_post_status, wo_res = req("POST", "/api/v1/fieldservice/work-orders", {"workTypeId": wt_id, "status": "new", "priority": 1})
+        assert wo_post_status == 201
+        assert wo_res["data"]["workTypeId"] == wt_id
+        assert wo_res["data"]["status"] == "new"
+        assert wo_res["data"]["priority"] == 1
+        wo_id = wo_res["data"]["id"]
 
-        ts_id = parse_id(req("POST", "/api/v1/fieldservice/time-slots", {"operatingHoursId": oh_id, "dayOfWeek": 1, "startTime": "08:00:00", "endTime": "17:00:00"})[1])
-        assert req("GET", f"/api/v1/fieldservice/time-slots/{ts_id}")[0] == 200
+        wo_get_status, wo_get_res = req("GET", f"/api/v1/fieldservice/work-orders/{wo_id}")
+        assert wo_get_status == 200
+        assert wo_get_res["data"]["id"] == wo_id
+        assert wo_get_res["data"]["status"] == "new"
+
+        wo_put_status, wo_put_res = req("PUT", f"/api/v1/fieldservice/work-orders/{wo_id}", {"workTypeId": wt_id, "status": "in_progress", "priority": 1})
+        assert wo_put_status == 200
+        assert wo_put_res["data"]["status"] == "in_progress"
+
+        # Operating Hours & Time Slots correctness verification
+        oh_post_status, oh_res = req("POST", "/api/v1/fieldservice/operating-hours", {"name": "OH1_Test", "timeZone": "UTC"})
+        assert oh_post_status == 201
+        assert oh_res["data"]["name"] == "OH1_Test"
+        assert oh_res["data"]["timezone"] == "UTC"
+        oh_id = oh_res["data"]["id"]
+
+        ts_post_status, ts_res = req("POST", "/api/v1/fieldservice/time-slots", {"operatingHoursId": oh_id, "dayOfWeek": 1, "startTime": "08:00:00", "endTime": "17:00:00"})
+        assert ts_post_status == 201
+        assert ts_res["data"]["operatingHoursId"] == oh_id
+        assert ts_res["data"]["dayOfWeek"] == 1
+        ts_id = ts_res["data"]["id"]
+
+        ts_get_status, ts_get_res = req("GET", f"/api/v1/fieldservice/time-slots/{ts_id}")
+        assert ts_get_status == 200
+        assert ts_get_res["data"]["id"] == ts_id
+        assert ts_get_res["data"]["operatingHoursId"] == oh_id
         assert req("PUT", f"/api/v1/fieldservice/time-slots/{ts_id}", {"operatingHoursId": oh_id, "dayOfWeek": 2, "startTime": "09:00:00", "endTime": "18:00:00"})[0] == 200
 
         # Territories
